@@ -9,8 +9,9 @@ public class Searcher extends Thread{
     }
 
     @Override
-    public int run(int item) {
-        return list.search(item);
+    public void run() {
+    	int valor = (int) (Math.random() * list.getSize()) + 1;
+        list.search(valor);
     }
 
 }

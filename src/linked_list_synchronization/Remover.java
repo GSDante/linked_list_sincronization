@@ -10,7 +10,7 @@ public class Remover extends Thread{
 
     @Override
     public void run() {
-        int item = (int) (Math.random() * list.size()) + 1;
-        list.remove(item);
+        int index = (int) (Math.random() * list.getSize()) + 1;
+        list.remove(index);
     }
 }
