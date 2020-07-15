@@ -22,9 +22,14 @@ public class Linked_list {
 	}
 	
 	public void search(int value) {
-		int index = resource.indexOf(value);
-		System.out.println("Thread " + Thread.currentThread().getName() +
-				" got " + resource.get(index) + " by index " + value);
+		int index = -1;
+		try {
+			index = resource.indexOf(value);
+			System.out.println("Thread " + Thread.currentThread().getName() +
+					" got " + resource.get(index) + " by index " + index);
+		}catch(IndexOutOfBoundsException e){
+			System.out.println("Erro no indice " + index);
+		}
 	}
 	
 	public void insert(int value) {
@@ -49,7 +54,8 @@ public class Linked_list {
 			int value = resource.remove(index);
 			System.out.println("Thread " + Thread.currentThread().getName() +
 					" removed " + value + " by index " + index);
-			readyRemove.signal();
+			readyInsert.signal();
+			readySearch.signal();
 			
 		}catch(InterruptedException e) {
 			e.printStackTrace();
@@ -60,5 +66,9 @@ public class Linked_list {
 	
 	public int getSize() {
 		return resource.size();
+	}
+	
+	public LinkedList<Integer> getResource() {
+		return resource;
 	}
 }

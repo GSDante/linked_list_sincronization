@@ -1,5 +1,7 @@
 package linked_list_synchronization;
 
+import java.util.Random;
+
 public class Remover extends Thread{
     private Linked_list list;
 
@@ -10,7 +12,16 @@ public class Remover extends Thread{
 
     @Override
     public void run() {
-        int index = (int) (Math.random() * list.getSize()) + 1;
-        list.remove(index);
+    	Random r = new Random();
+    	int index0 = r.nextInt(list.getSize());
+    	System.out.println("fora: "+ index0);
+    	try {
+	    	
+	    	int index = index0;
+	        list.remove(index);
+    	}catch(IllegalArgumentException e) {
+    		System.out.println(Thread.currentThread().getName() + 
+    				" is pushing on empty list");
+    	}
     }
 }
