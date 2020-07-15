@@ -43,16 +43,19 @@ public class Linked_list {
 			if (blockSearchers) {
 				//Se o número de buscadores for menor do que 0,então há buscadores
 				//em espera
-				System.out.print(Thread.currentThread().getName()+"suspended.\n");
+				System.out.print(Thread.currentThread().getName()+" suspended\n");
 				readySearch.await();
 			}
 			// Incrementa o número de buscadores ativos
 			searchers++;
 			int index = resource.indexOf(value);
 			System.out.println("Thread " + Thread.currentThread().getName() +
-					" got " + resource.get(index) + " by index " + value);
+					" got " + resource.get(index) + " by index " + index);
 		}catch(InterruptedException e){
 			e.printStackTrace();
+		}catch(IndexOutOfBoundsException e) {
+			System.out.println("Thread " + Thread.currentThread().getName() + 
+					" trying to access non-existent index");
 		}finally {
 			lock.unlock();
 		}
@@ -133,6 +136,9 @@ public class Linked_list {
 					" removed " + value + " by index " + index);
 		}catch(InterruptedException e) {
 			e.printStackTrace();
+		}catch(IndexOutOfBoundsException e) {
+			System.out.println("Thread " + Thread.currentThread().getName() + 
+					" trying to remove in non-existent index");
 		}finally {
 			lock.unlock();
 		}
