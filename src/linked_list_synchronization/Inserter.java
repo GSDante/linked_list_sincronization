@@ -1,5 +1,7 @@
 package linked_list_synchronization;
 
+import java.util.Random;
+
 import static java.lang.Math.random;
 
 public class Inserter extends Thread{
@@ -10,7 +12,14 @@ public class Inserter extends Thread{
         this.list = list;
     }
     public void run() {
-        int item = (int) (random() * 100) + 1;
-        list.insert(item);
+        try{
+            Random r = new Random();
+            int valor = r.nextInt(100) ;
+            list.startInsert(valor);
+        }catch (IllegalArgumentException e){
+            System.out.println(Thread.currentThread().getName() + " inserting in a empty list");
+        }finally {
+            list.finishInsert();
+        }
     }
 }

@@ -21,7 +21,7 @@ public class Main {
 			removers[i] = new Remover("Operação R" + (i+1), list);
 		}
 
-		for (int i = 0; i < NUM_THREADS_INSERT; i++) {
+		for (int i = 0; i < NUM_THREADS_SEARCHER; i++) {
 			searchers[i] = new Searcher("Operação S" + (i+1), list);
 		}
 

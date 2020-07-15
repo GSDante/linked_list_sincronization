@@ -1,5 +1,7 @@
 package linked_list_synchronization;
 
+import java.util.Random;
+
 public class Searcher extends Thread{
     private Linked_list list;
 
@@ -10,8 +12,15 @@ public class Searcher extends Thread{
 
     @Override
     public void run() {
-    	int valor = (int) (Math.random() * list.getSize()) + 1;
-        list.search(valor);
+        try{
+            Random r = new Random();
+    	    int index = r.nextInt(list.getSize());
+            list.startSearch(list.getResource().get(index));
+        }catch (IllegalArgumentException e){
+            System.out.println(Thread.currentThread().getName() + " searching in a empty list");
+        }finally {
+            list.finishSearch();
+        }
     }
 
 }
