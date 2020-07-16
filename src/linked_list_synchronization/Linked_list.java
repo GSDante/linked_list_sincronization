@@ -26,11 +26,7 @@ public class Linked_list {
 
 	//Variável que auxiliar em saber o número de buscadores ativos na zona crítica
 	private int searchers = 0;
-
-	//Variáveis booleanas que auxiliam no bloqueio de buscas e inserções enquanto há remoção ou, no caso de inserção,
-	// enquanto há operação de inserção
-	private boolean blockSearchers = false;
-	private boolean blockInserters = false;
+	private int searchersRequest = 0;
 
 	//Construtor da lista simplesmente encadeada que recebe como parâmetro o número de elementos na inicialização
 	public Linked_list(int size){
@@ -57,14 +53,18 @@ public class Linked_list {
 	public void startSearch(int value){
 		lock.lock();
 		try {
+			searchersRequest++;
 			//Caso a zona crítica esteja sendo ocupada por uma operação de remoção
 			//então a operação de busca atual terá que esperar até ser liberado
-			if (blockSearchers) {
+			while(removerActive > 0) {
 				//Se o número de buscadores for menor do que 0,então há buscadores
 				//em espera
 				System.out.print(Thread.currentThread().getName()+" suspended\n");
 				readySearch.await();
 			}
+			System.out.println("Thread " + Thread.currentThread().getName() + " started");
+
+			searchersRequest--;
 			// Incrementa o número de buscadores ativos
 			searchers++;
 			//Função que busca pelo indice da lista
@@ -87,6 +87,8 @@ public class Linked_list {
 		lock.lock();
 		//Decrementa o número de buscadores ativos
 		searchers--;
+		System.out.println("Thread " + Thread.currentThread().getName() + " finished");
+
 		//Desperta algum removedor dormindo
 		if(removersRequest > 0){
 			readyRemove.signal();
@@ -103,15 +105,16 @@ public class Linked_list {
 			insertersRequest++;
 			//Caso a região crítica esteja sendo ocupada por outra operação de inserção ou remoção
 			//Esta operaçõ será suspensa
-			if(inserterActive > 0 || blockInserters ){
+			while(inserterActive > 0 || removerActive > 0){
 				readyInsert.await();
 				System.out.println("Thread " + Thread.currentThread().getName() +
 						" suspended because resource is busy");
 			}
+			System.out.println("Thread " + Thread.currentThread().getName() + " started");
+
 			// Incrementa o número de operação de inserção ativa
 			inserterActive++;
 			//Bloqueia o acesso a outras operações de inserção
-			blockInserters = false;
 			resource.add(value);
 			System.out.println("Thread " + Thread.currentThread().getName() +
 					" inserted " + value);
@@ -127,8 +130,8 @@ public class Linked_list {
 		lock.lock();
 		//Diminue o número de operação de inserção ativo pra 0
 		inserterActive--;
-		//Desbloqueia o acesso para outros inseridores
-		blockInserters = false;
+		System.out.println("Thread " + Thread.currentThread().getName() + " finished");
+
 		//Verifica se há removedores requisitando para acorda algum deles, caso nao, verifica os de inserção
 		if(removersRequest > 0) {
 			readyRemove.signal();
@@ -150,20 +153,10 @@ public class Linked_list {
 						" suspended because resource is busy");
 				readyRemove.await();
 			}
-			//Caso não tenha indice para remover
-			while(resource.size() < index) {
-				System.out.println("Thread " + Thread.currentThread().getName() +
-						" suspended because resource is empty");
-				//Caso em que o remove quer remover um index que não existe e não há mais threads de inserção
-				if(insertersRequest == 0){
-					System.out.println(" index is not exist and no had more inserters");
-					break;
-				}
-			}
+
 			//Bloqueia os acesso
-			blockSearchers = true;
-			blockInserters = true;
 			removerActive++;
+			System.out.println("Thread " + Thread.currentThread().getName() + " started");
 
 			int value = resource.remove(index);
 			System.out.println("Thread " + Thread.currentThread().getName() +
@@ -180,13 +173,12 @@ public class Linked_list {
 
 	public void finishRemove(){
 		lock.lock();
+		System.out.println("Thread " + Thread.currentThread().getName() + " finished");
 		removerActive--;
 		//Desperta as operações que foram paradas
-		if(insertersRequest > 0){
-			blockInserters = false;
-			blockSearchers = false;
+		if(insertersRequest > 0 || searchersRequest > 0){
 			readyInsert.signal();
-			readySearch.signalAll();
+			readySearch.signal();
 		}else if(removersRequest > 0){
 			readyRemove.signal();
 		}
