@@ -2,6 +2,7 @@ package linked_list_synchronization;
 
 import java.util.Random;
 
+//Classe da thread do tipo remove
 public class Remover extends Thread{
     private Linked_list list;
 
@@ -13,6 +14,7 @@ public class Remover extends Thread{
     @Override
     public void run() {
         try{
+            //Pega um índice randômico para remover a partir dele na lista
             Random r = new Random();
             int valor = r.nextInt(list.getSize());
             list.startRemove(valor);
