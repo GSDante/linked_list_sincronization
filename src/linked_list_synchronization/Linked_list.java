@@ -111,7 +111,7 @@ public class Linked_list {
 						" suspended because resource is busy");
 			}
 			System.out.println("Thread " + Thread.currentThread().getName() + " started");
-
+			insertersRequest--;
 			// Incrementa o número de operação de inserção ativa
 			inserterActive++;
 			//Bloqueia o acesso a outras operações de inserção
@@ -153,7 +153,7 @@ public class Linked_list {
 						" suspended because resource is busy");
 				readyRemove.await();
 			}
-
+			removersRequest--;
 			//Bloqueia os acesso
 			removerActive++;
 			System.out.println("Thread " + Thread.currentThread().getName() + " started");
