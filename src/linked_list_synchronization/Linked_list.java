@@ -25,7 +25,7 @@ public class Linked_list {
 	private int removersRequest = 0;
 
 	//Variável que auxiliar em saber o número de buscadores ativos na zona crítica
-	private int searchers = 0;
+	private int searchersActive = 0;
 	private int searchersRequest = 0;
 
 	//Construtor da lista simplesmente encadeada que recebe como parâmetro o número de elementos na inicialização
@@ -54,9 +54,9 @@ public class Linked_list {
 		lock.lock();
 		try {
 			searchersRequest++;
-			//Caso a zona crítica esteja sendo ocupada por uma operação de remoção
+			//Caso a zona crítica esteja sendo ocupada por uma operação de remoção ou há mais de 100 buscadores
 			//então a operação de busca atual terá que esperar até ser liberado
-			while(removerActive > 0) {
+			while(removerActive > 0 || searchersActive > 100) {
 				//Se o número de buscadores for menor do que 0,então há buscadores
 				//em espera
 				System.out.print(Thread.currentThread().getName()+" suspended\n");
@@ -66,7 +66,7 @@ public class Linked_list {
 
 			searchersRequest--;
 			// Incrementa o número de buscadores ativos
-			searchers++;
+			searchersActive++;
 			//Função que busca pelo indice da lista
 			int index = resource.indexOf(value);
 			System.out.println("Thread " + Thread.currentThread().getName() +
@@ -86,12 +86,15 @@ public class Linked_list {
 	public void finishSearch(){
 		lock.lock();
 		//Decrementa o número de buscadores ativos
-		searchers--;
+		searchersActive--;
 		System.out.println("Thread " + Thread.currentThread().getName() + " finished");
 
 		//Desperta algum removedor dormindo
 		if(removersRequest > 0){
 			readyRemove.signal();
+		}else{
+			//Caso não, chama todos os buscadores que estavam em espera quando se tinha um removedor
+			readySearch.signalAll();
 		}
 		lock.unlock();
 	}
@@ -148,7 +151,7 @@ public class Linked_list {
 			removersRequest++;
 			//Caso o a região crítica esteja sendo ocupada por inserção,remoção ou buscadores
 			//A operação espera
-			while(inserterActive > 0 || removerActive > 0 || searchers > 0){
+			while(inserterActive > 0 || removerActive > 0 || searchersActive > 0){
 				System.out.println("Thread " + Thread.currentThread().getName() +
 						" suspended because resource is busy");
 				readyRemove.await();
