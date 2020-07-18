@@ -2,9 +2,9 @@ package linked_list_synchronization;
 
 public class Main {
 	// Criação do número de threads de cada tipo de operação
-	private static final int NUM_THREADS_INSERT = 7;
-	private static final int NUM_THREADS_REMOVER = 4;
-	private static final int NUM_THREADS_SEARCHER = 10;
+	private static final int NUM_THREADS_INSERT = 1100;
+	private static final int NUM_THREADS_REMOVER = 700;
+	private static final int NUM_THREADS_SEARCHER = 1000;
 
 	public static void main(String[] args) {
 		//Lista simplesmente encadeada com o número de elementos passados com parâmetro
