@@ -12,9 +12,7 @@ public class Linked_list {
 	LinkedList<Integer> resource;
 
 	//Variáveis de lock de leitura e escrita
-	ReentrantReadWriteLock lockSearch;
-	ReentrantReadWriteLock lockWriteRemove;
-	ReentrantReadWriteLock lockInsert;
+	ReentrantReadWriteLock rwLock;
 
 	//Variavel auxiliar para pode bloquear os insert simultaneos
 	Lock lockUniqueInsert;
@@ -30,9 +28,7 @@ public class Linked_list {
 		}
 
 		lockUniqueInsert = new ReentrantLock(true);
-		lockSearch  = new ReentrantReadWriteLock(true);
-		lockInsert  = new ReentrantReadWriteLock(true);
-		lockWriteRemove  = new ReentrantReadWriteLock(true);
+		rwLock  = new ReentrantReadWriteLock(true);
 
 	}
 
@@ -41,9 +37,9 @@ public class Linked_list {
 		return this.resource;
 	}
 
-	//Função que inicializa a operação de busca
+	//Função  da operação de busca que tem o mesmo papel de leitura e pode ser executado com outra de inserção
 	public void Search(int value){
-		lockSearch.readLock().lock();
+		rwLock.readLock().lock();
 		try {
 			System.out.println("Thread " + Thread.currentThread().getName() + " started");
 			int index = resource.indexOf(value);
@@ -56,7 +52,8 @@ public class Linked_list {
 					" trying to access non-existent index");
 		}finally {
 			System.out.println("Thread " + Thread.currentThread().getName() + " finished");
-			lockSearch.readLock().unlock();
+			//Liberação de recurso para outra operação de escrita
+			rwLock.readLock().unlock();
 
 		}
 	}
@@ -64,7 +61,10 @@ public class Linked_list {
 
 	//Inicializador da operação de inserção
 	public void Insert(int value) {
-		lockInsert.readLock().lock();
+		//Lock de leitura para poder executar junto com outras operações de busca
+		rwLock.readLock().lock();
+
+		//Lock de exclusividade em relação a outras operações de inserção
 		lockUniqueInsert.lock();
 		try{
 			System.out.println("Thread " + Thread.currentThread().getName() + " started");
@@ -75,16 +75,17 @@ public class Linked_list {
 					" inserted " + value);
 		}finally{
 			System.out.println("Thread " + Thread.currentThread().getName() + " finished");
-
+			//Liberação de acesso para outras inserções
 			lockUniqueInsert.unlock();
-			lockInsert.readLock().unlock();
+			//Liberação geral para outras operações
+			rwLock.readLock().unlock();
 		}
 
 	}
 
-
+	//Função remove que utiliza o lock de escrita do ReadLock para ter exclusividade do acesso
 	public void Remove(int index){
-		lockWriteRemove.writeLock().lock();
+		rwLock.writeLock().lock();
 		try {
 			System.out.println("Thread " + Thread.currentThread().getName() + " started");
 			int value = resource.remove(index);
@@ -96,7 +97,7 @@ public class Linked_list {
 					" trying to remove in non-existent index");
 		}finally {
 			System.out.println("Thread " + Thread.currentThread().getName() + " finished");
-			lockWriteRemove.writeLock().unlock();
+			rwLock.writeLock().unlock();
 		}
 	}
 
