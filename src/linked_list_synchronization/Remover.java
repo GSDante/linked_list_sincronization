@@ -17,11 +17,10 @@ public class Remover extends Thread{
             //Pega um índice randômico para remover a partir dele na lista
             Random r = new Random();
             int valor = r.nextInt(list.getSize());
-            list.startRemove(valor);
+            list.Remove(valor);
         }catch (IllegalArgumentException e){
             System.out.println(Thread.currentThread().getName() + " removing in a empty list");
-        }finally {
-            list.finishRemove();
         }
+
     }
 }

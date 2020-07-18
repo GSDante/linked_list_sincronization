@@ -16,12 +16,10 @@ public class Searcher extends Thread{
             //Pega um índice randômico para pesquisar na lista
             Random r = new Random();
     	    int index = r.nextInt(list.getSize());
-            list.startSearch(list.getResource().get(index));
+            list.Search(list.getResource().get(index));
         }catch (IllegalArgumentException e){
             System.out.println(Thread.currentThread().getName() + " searching in a empty list");
-        }finally {
-            list.finishSearch();
         }
     }
-
 }
+

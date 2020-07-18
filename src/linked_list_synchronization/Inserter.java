@@ -17,12 +17,9 @@ public class Inserter extends Thread{
         try{
             Random r = new Random();
             int valor = r.nextInt(100) ;
-            list.startInsert(valor);
+            list.Insert(valor);
         }catch (IllegalArgumentException e){
             System.out.println(Thread.currentThread().getName() + " inserting in a empty list");
-        }finally {
-            //Quando terminar de fazer a operação, então chama a função abaixo
-            list.finishInsert();
         }
     }
 }
